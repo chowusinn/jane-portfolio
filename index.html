@@ -1,0 +1,1394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/png" href="./assets/%E9%B8%A2%E5%B0%BE%E8%8A%B12.png" />
+  <title>Jane — Portfolio</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          maxWidth: { container: '72rem' },
+          fontFamily: {
+            playfair: ['"Playfair Display"', 'Georgia', 'serif'],
+            sans: ['Inter', '"Noto Sans SC"', '"Noto Sans JP"', 'system-ui', 'sans-serif'],
+          },
+        },
+      },
+    };
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Noto+Sans+JP:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;600&display=swap"
+    rel="stylesheet"
+  />
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    html { scroll-behavior: smooth; }
+    body {
+      background-color: #fdfcf8;
+    }
+    #glance, #work, #side, #about, #contact { scroll-margin-top: 4.75rem; }
+    .hero-iris {
+      mix-blend-mode: multiply !important;
+    }
+    .hero-seal-stack {
+      position: relative;
+      display: inline-block;
+      width: 4.75rem;
+      height: 4.75rem;
+      vertical-align: -0.35rem;
+      filter: drop-shadow(0 2px 5px rgba(30, 27, 75, 0.16));
+    }
+    .hero-seal-stack::before {
+      content: '';
+      position: absolute;
+      z-index: 0;
+      inset: -2px -3px -6px -2px;
+      border-radius: 3px 2px 4px 3px;
+      border: 1px solid rgba(30, 58, 138, 0.2);
+      opacity: 0.42;
+      transform: rotate(-5deg);
+      pointer-events: none;
+    }
+    .hero-seal-shade--iris {
+      pointer-events: none;
+      position: absolute;
+      inset: -0.2rem -0.35rem -0.4rem -0.2rem;
+      z-index: 0;
+      overflow: visible;
+    }
+    .hero-seal-shade--iris svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0.08;
+      color: #1e3a8a;
+    }
+    .hero-seal-bloom--iris {
+      position: absolute;
+      right: -2%;
+      top: 18%;
+      width: 84%;
+      height: 84%;
+      border-radius: 48% 52% 50% 50% / 44% 46% 54% 56%;
+      background: radial-gradient(ellipse at 42% 38%, rgba(167, 139, 250, 0.05), transparent 62%);
+      filter: blur(24px);
+      opacity: 1;
+    }
+    ruby rt {
+      font-size: 0.42em;
+      font-weight: 500;
+    }
+    .editorial-wash {
+      background-image: radial-gradient(
+        ellipse 120% 90% at 20% 30%,
+        rgba(167, 139, 250, 0.03) 0%,
+        rgba(251, 191, 36, 0.03) 45%,
+        transparent 72%
+      );
+    }
+    .side-poster-row {
+      display: flex !important;
+      justify-content: flex-end !important;
+      gap: 14px !important;
+      height: 336px !important;
+      min-height: 336px !important;
+      max-height: 336px !important;
+      flex-shrink: 0;
+    }
+    .side-poster-row img {
+      height: 100% !important;
+      width: auto !important;
+      max-width: none !important;
+      object-fit: contain !important;
+    }
+  </style>
+</head>
+<body class="font-sans text-[#4B5563] tracking-tight antialiased">
+  <div id="root"></div>
+
+  <script type="text/babel" data-presets="react">
+    const { useState, useCallback, useEffect } = React;
+
+    const posterFiles = ['1.svg', '2.svg', '3.svg', '4.svg', '5.svg', '6.svg'];
+
+    const ARTS_POSTER_BASES = [
+      'ワンパンマン',
+      '転生したらスライムだった件',
+      'ラブライブ',
+      '怪物事変',
+      '荒野のコトブキ飛行隊',
+      'モンスター娘のお医者さん',
+    ];
+
+    function artsPosterSrc(base) {
+      return './assets/' + encodeURIComponent(base) + '.png';
+    }
+
+    const T = {
+      EN: {
+        nav: {
+          glance: 'At a Glance',
+          work: 'Work',
+          side: 'Side Projects',
+          about: 'About Me',
+          contact: 'Contact',
+        },
+        hero: {
+          line1Prefix: 'Hi, I am ',
+          line1Name: 'Jane',
+          line1Suffix: '.',
+          line2: 'Moving hearts through cultural bridges.',
+          cta: 'View Resume',
+        },
+        glance: {
+          section: 'At a glance',
+          m1num: '30',
+          m1anno: '+',
+          m1t: 'Animation IP Operations',
+          m1d: 'Managing global hit titles & licensing',
+          m2num: '10',
+          m2anno: '+',
+          m2t: 'Global Regions Served',
+          m2d: 'Japan, USA, Europe, SE Asia, and more',
+          m3num: '6',
+          m3anno: '+ Years',
+          m3t: 'Global Career Path',
+          m3d: '4Y Japan | 2Y China',
+        },
+        work: {
+          section: 'Work experience',
+          bandai: 'Bandai Namco Group',
+          bandaiSub: 'Global IP Operations & Corporate Communications',
+          bandaiDesc:
+            'Overseas copyright operations for flagship animation IPs—coordinating production committees, overseas licensees, and simultaneous global marketing with strict brand consistency.',
+          sika: 'Sika (China) Ltd.',
+          sikaSub: 'Executive Coordination & Corporate Event Management',
+          sikaDesc:
+            'Executive administrative support and international event operations across APAC: professional administrative assistance for European leadership, large-scale conferences, and internal communications across teams.',
+        },
+        side: {
+          section: 'Side projects',
+          introTitle: 'Introduction',
+          coverTitle: 'Aesthetic Activity Platform',
+          coverBody:
+            'A fluid platform established in 2025 dedicated to exploring life aesthetics. Rooted in the city’s deep cultural heritage, we use handcrafted arts as our medium to perceive the poetry in everyday life through delicate visual storytelling.',
+          explore: 'Explore Projects →',
+          xhsLabel: '@鸢尾与三行诗',
+          xhsUrl:
+            'https://www.xiaohongshu.com/user/profile/6405f53a000000001001f1ad?xsec_token=YBQTNz0rt7eJcJNKb4sg9w5YS71k0tKGb8MV2x8e8nGbo=&xsec_source=app_share&xhsshare=CopyLink&shareRedId=OD46QjtJRj42NzUyOTgwNjg7OTlGST87&apptime=1776079160&share_id=4d178e37a7754e969b5e024025ccf226&exSource=',
+          opening:
+            'Iris & V. was born from a deep devotion to life aesthetics. We believe beauty shouldn\'t be confined to displays; instead, we seek to rediscover the hidden poetry of the everyday through immersive experiences. Utilizing Xiaohongshu (RED)—China’s leading lifestyle-sharing social platform—as our primary community hub, each gathering we organize becomes a spark of inspiration, creating an aesthetic resonance among our members and allowing poetry to manifest within daily life.',
+          moodSection: 'Section A · Poster Atmosphere',
+          docSection: 'Section B · Documentary Immersion',
+          footnotesA: '8 participants / Suzhou Nankunlu / Xiaohongshu community recruitment',
+          footnotesB: '6 participants / 1920s historic villa / Xiaohongshu community recruitment',
+          projectA: {
+            title: 'Xiangyun Silk Earring Workshop',
+            detail:
+              'Amidst the lush summer shadows of the historic Nan Kun Lu gallery, we gathered to craft earrings from heritage Xiangyun silk. A moment where ancient garden aesthetics met the delicate rhythm of handwork.',
+            posterLabels: ['Primary poster', 'Secondary poster'],
+            photoLabels: ['On-site I', 'On-site II', 'On-site III', 'On-site IV'],
+          },
+          projectB: {
+            title: '1920s Vintage Summer Tea Party',
+            detail:
+              'Step into a Spanish-style villa from a century ago for a summer tea party dedicated to Art Deco. Between the roses and the lace of vintage millinery, we found a poetic resonance with the past.',
+            posterLabels: ['Primary poster', 'Secondary poster'],
+            photoLabels: ['On-site I', 'On-site II', 'On-site III'],
+          },
+          copyright: 'Copyright notice: all visuals remain property of their respective creators and are shown for portfolio demonstration only.',
+        },
+        about: { section: 'About me', title: 'Life & Philosophy', body: 'I am a passionate traveler who loves exploring the world\'s boundaries and experiencing the richness of diverse cultures. I cherish moments spent with family, as they provide the courage and enduring support for every new journey. With an insatiable curiosity for life, piano, dance, and fitness intertwine like guiding lights, allowing me to confront my true self and find inner tranquility through continuous exploration.' },
+        contact: { section: 'Contact', email: 'Email', linkedin: 'LinkedIn' },
+        detail: {
+          back: 'Back',
+          disclaimer:
+            'Note: All artwork/screenshots are copyright of their respective owners and are used here for portfolio demonstration purposes only.',
+          bandai: {
+            date1: '2019.04 - 2022.03',
+            title: 'Bandai Namco Group',
+            companyArts: 'Bandai Namco Arts Inc.',
+            companyFilmworks: 'Bandai Namco Filmworks Inc.',
+            period1Title: '2019.04 - 2022.03 Bandai Namco Arts Inc.',
+            period2Title: '2022.04 - 2023.08 Bandai Namco Filmworks Inc.',
+            artsCaptions: [
+              'One Punch Man',
+              'That Time I Got Reincarnated as a Slime',
+              'Love Live! Nijigasaki High School Idol Club',
+              'Kemono Jihen',
+              'Kōya no Kotobuki Hikōtai',
+              'Monster Girl Doctor',
+            ],
+            posters: [
+              { f: posterFiles[0], c: 'One Punch Man' },
+              { f: posterFiles[1], c: 'That Time I Got Reincarnated as a Slime' },
+              { f: posterFiles[2], c: 'Mobile Suit Gundam Hathaway' },
+              { f: posterFiles[3], c: 'Love Live！ Nijigasaki High School Idol Club' },
+              { f: posterFiles[4], c: 'IDOLiSH7 Third BEAT!' },
+              { f: posterFiles[5], c: 'Blue Lock' },
+            ],
+            ws1: [
+              'Overseas copyright operations for 30+ hit IPs including One Punch Man and That Time I Got Reincarnated as a Slime, managing asset delivery and brand licensing for 10+ global markets.',
+              'Coordination between production committees and overseas licensees to ensure brand consistency and support global simultaneous distribution marketing.',
+              'Transferred to Corporate Development Department; completed Internal Control operations following group protocols.',
+            ],
+            date2: '2022.04 - 2023.08',
+            mergerNote: '*Transferred due to merger of Arts & Sunrise within the group',
+            cap1: 'Exploring XR Applications in Animation Production',
+            cap2: 'Visiting Studio Dub Fukushima (Hand-drawn & Digital Animation)',
+            ws2: [
+              'Internal Communication & Cross-departmental Feature Planning: Led specialized internal content creation to promote mutual understanding and group culture, such as featuring XR technology applications and digital animation workflows at Studio Dub.',
+              'Corporate Event Planning & Employee Engagement: Conceptualized and executed various internal events and employee care programs during the merger period to enhance team cohesion and morale.',
+              'Administrative & Strategic Support: Provided comprehensive administrative support to senior management and the Corporate Development Department following the group merger.',
+            ],
+          },
+          sika: {
+            title: 'Sika (China) Ltd.',
+            date: '2023.08 - 2025.10',
+            cards: [
+              { k: 'e', title: 'Executive Administrative Coordination', body: 'Providing professional administrative support to French and German APAC leadership to ensure smooth multinational operations.' },
+              { k: 'v', title: 'International event operations', body: 'End-to-end coordination and execution of large-scale international conferences for 300+ participants.' },
+              { k: 'h', title: 'HR & corporate communication', body: 'Facilitated internal communication within the organization and coordinated liaison with senior management.' },
+              { k: 'p', title: 'Process Coordination & Departmental Synergy', body: 'Coordinating workflows for corporate projects and facilitating day-to-day synergy across functional departments.' },
+            ],
+            ws: [
+              'Provided comprehensive administrative support to the APAC leadership team and assisted with management operations.',
+              'Managed large-scale international events and optimized internal administrative processes.',
+              'Facilitated internal communication between HR and Senior Management to foster corporate culture integration.',
+            ],
+          },
+        },
+      },
+      JP: {
+        nav: {
+          glance: '概要', work: '職務経歴', side: 'サイドプロジェクト', about: '私について', contact: '連絡先',
+        },
+        hero: {
+          line2: '心動く場所へ、世界を繋ぐ。',
+          cta: '履歴書を見る',
+        },
+        glance: {
+          section: 'データ概観',
+          m1num: '30',
+          m1anno: '+',
+          m1t: 'アニメIPオペレーション',
+          m1d: '世界的ヒットタイトルの版権・ライセンス管理',
+          m2num: '10',
+          m2anno: '+',
+          m2t: '対応地域',
+          m2d: '日本、米国、欧州、東南アジアほか',
+          m3num: '6',
+          m3anno: '+ 年',
+          m3t: 'グローバルキャリア',
+          m3d: '日本4年 | 中国2年',
+        },
+        work: {
+          section: '職務経歴',
+          bandai: 'バンダイナムコグループ',
+          bandaiSub: 'グローバルIPオペレーション & コーポレートコミュニケーション',
+          bandaiDesc:
+            '主力アニメIPの海外版権業務—製作委員会、海外ライセンシー、世界同時マーケのリズムを整えながらブランド整合性を維持。',
+          sika: 'シーカ・チャイナ',
+          sikaSub: 'エグゼクティブ・コーディネーション及び企業イベント統括',
+          sikaDesc:
+            'APACにおけるエグゼクティブアドミンと国際イベント運営。欧州経営陣への業務支援、大規模会議、チーム間の社内コミュニケーションを担当。',
+        },
+        side: {
+          section: 'サイドプロジェクト',
+          introTitle: 'イントロダクション',
+          coverTitle: '若者向け美学活動プラットフォーム',
+          coverBody:
+            '2025年に誕生した、生活美学を探求する流動的なプラットフォーム。都市の深い歴史を背景に、ハンドメイドを媒介として、繊細なビジュアルストーリーテリングを通じて日常に潜む詩情を紡ぎ出します。',
+          explore: 'プロジェクトを見る →',
+          xhsLabel: '@鸢尾与三行诗',
+          xhsUrl:
+            'https://www.xiaohongshu.com/user/profile/6405f53a000000001001f1ad?xsec_token=YBQTNz0rt7eJcJNKb4sg9w5YS71k0tKGb8MV2x8e8nGbo=&xsec_source=app_share&xhsshare=CopyLink&shareRedId=OD46QjtJRj42NzUyOTgwNjg7OTlGST87&apptime=1776079160&share_id=4d178e37a7754e969b5e024025ccf226&exSource=',
+          opening:
+            'Iris & V. は、生活美学への深い情熱から誕生しました。美しさは展示されるだけのものではなく、没入型の体験を通じて日常に隠れた詩情を再発見すべきだと考えています。中国最大のライフスタイル共有ソーシャルプラットフォームである「小紅書（RED）」を主なコミュニティ運営の拠点とし、私たちが企画するすべての集まりはインスピレーションの源となり、女性たちの間で審美的な共鳴を生み出し、日常の中に詩的な感性を具現化させています。',
+          interlude: '光がゆるやかに落ちる——ページをめくるように。',
+          moodSection: '第一層 · 意境ポスター',
+          docSection: '第二層 · 没入ドキュメント',
+          footnotesA: '8人規模 / 蘇州南昆録 / 小紅書コミュニティ募集',
+          footnotesB: '6人規模 / 1920s百年洋館 / 小紅書コミュニティ募集',
+          projectA: {
+            title: '香雲紗イヤリングワークショップ',
+            detail:
+              'Amidst the lush summer shadows of the historic Nan Kun Lu gallery, we gathered to craft earrings from heritage Xiangyun silk. A moment where ancient garden aesthetics met the delicate rhythm of handwork.',
+            posterLabels: ['ポスター I', 'ポスター II'],
+            photoLabels: ['現場 I', '現場 II', '現場 III', '現場 IV'],
+          },
+          projectB: {
+            title: '1920s ヴィンテージ・サマー・ティーパーティー',
+            detail:
+              'Step into a Spanish-style villa from a century ago for a summer tea party dedicated to Art Deco. Between the roses and the lace of vintage millinery, we found a poetic resonance with the past.',
+            posterLabels: ['ポスター I', 'ポスター II'],
+            photoLabels: ['現場 I', '現場 II', '現場 III'],
+          },
+          copyright: '著作権注記：掲載素材の権利は各権利者に帰属し、ポートフォリオ展示目的でのみ使用しています。',
+        },
+        about: { section: '私について', title: '生き方と哲学', body: '旅行を通じて世界の境界を探索し、多様な文化の中で生命の豊かさと人文の素晴らしさを感じるのが大好きです。家族と過ごす温かな時間は、新しい旅へと踏み出す勇気と永遠の支えとなっています。生活に対する尽きることのない好奇心を持ち、ピアノ、ダンス、フィットネスは、探求の中で自分自身と向き合い、心身の安らぎを得るための導きの光となっています。' },
+        contact: { section: '連絡先', email: 'メール', linkedin: 'LinkedIn' },
+        detail: {
+          back: '戻る',
+          disclaimer:
+            '注：掲載されている作品の画像・スクリーンショットの著作権は各権利所有者に帰属します。個人のポートフォリオ展示目的のみで使用しています。',
+          bandai: {
+            date1: '2019.04 - 2022.03',
+            title: 'バンダイナムコグループ',
+            companyArts: '株式会社バンダイナムコアーツ',
+            companyFilmworks: '株式会社バンダイナムコフィルムワークス',
+            period1Title: '2019.04 - 2022.03 株式会社バンダイナムコアーツ',
+            period2Title: '2022.04 - 2023.08 株式会社バンダイナムコフィルムワークス',
+            artsCaptions: [
+              'ワンパンマン',
+              '転生したらスライムだった件',
+              'ラブライブ！虹ヶ咲学園スクールアイドル同好会',
+              '怪物事変',
+              '荒野のコトブキ飛行隊',
+              'モンスター娘のお医者さん',
+            ],
+            posters: [
+              { f: posterFiles[0], c: 'ワンパンマン' },
+              { f: posterFiles[1], c: '転生したらスライムだった件' },
+              { f: posterFiles[2], c: '機動戦士ガンダム 閃光のハサウェイ' },
+              { f: posterFiles[3], c: 'ラブライブ！虹ヶ咲学園スクールアイドル同好会' },
+              { f: posterFiles[4], c: 'アイドリッシュセブン Third BEAT!' },
+              { f: posterFiles[5], c: 'ブルーロック' },
+            ],
+            ws1: [
+              '「ワンパンマン」「転生したらスライムだった件」など30以上のヒットIPの海外版権業務に従事。素材提供とブランドライセンスを10以上の市場で管理。',
+              '製作委員会と海外ライセンシーの間で調整し、ブランド整合性と世界同時展開のマーケティングを支援。',
+              '経営企画部へ異動。グループ規程に沿った内部統制業務を完遂。',
+            ],
+            date2: '2022.04 - 2023.08',
+            mergerNote: '*グループ内アーツ及びサンライズの統合に伴う異動',
+            cap1: 'アニメ制作におけるXR技術活用の探究',
+            cap2: 'Studio Dub福島スタジオ訪問（手描きとデジタル作画）',
+            ws2: [
+              '社内広報・部門横断特集企画：XR技術活用やStudio Dubのデジタル作画フローなどの専門コンテンツを主導し、部門間の相互理解とグループ文化の醸成を推進。',
+              '社内イベント企画・エンゲージメント施策：統合期に多様な社内イベントと従業員向けケア施策を企画・実行し、チームの一体感と士気向上に貢献。',
+              '行政・戦略支援：グループ統合後、上級管理職および経営企画部門に対する包括的な行政支援を担当。',
+            ],
+          },
+          sika: {
+            title: 'シーカ・チャイナ',
+            date: '2023.08 - 2025.10',
+            cards: [
+              { k: 'e', title: 'エグゼクティブ・アドミン・コーディネーション', body: '仏・独APACリーダーシップに対する専門的なアドミン支援を行い、クロスボーダーな日常業務を円滑化。' },
+              { k: 'v', title: '国際イベントオペレーション', body: '300名超の大規模国際会議の企画から実行まで一気通貫でコーディネート。' },
+              { k: 'h', title: '人事・コーポレートコミュニケーション', body: '社内コミュニケーションの円滑化、およびシニアマネジメントとの連携支援。' },
+              { k: 'p', title: 'プロセス調整及び部門間連携', body: '社内プロジェクトに関連するプロセスの調整、及び各部門間の円滑な連携支援。' },
+            ],
+            ws: [
+              'APACリーダーシップチームに対し、包括的なアドミン支援を提供し、経営管理業務をサポート。',
+              '大規模国際イベントの運営と社内事務プロセスの最適化を担当。',
+              '人事及び経営層における社内コミュニケーションと企業文化の醸成を支援。',
+            ],
+          },
+        },
+      },
+      CN: {
+        nav: {
+          glance: '数据概览', work: '职业经历', side: '灵感项目', about: '关于我', contact: '联络方式',
+        },
+        hero: {
+          line1Prefix: '你好，我是',
+          line1Name: '赵臻',
+          line1Suffix: '。',
+          line2: '链接世界，让心无界。',
+          cta: '查看简历',
+        },
+        glance: {
+          section: '数据概览',
+          m1num: '30',
+          m1anno: '+',
+          m1t: '动画 IP 运营',
+          m1d: '管理全球热门作品的版管理与授权',
+          m2num: '10',
+          m2anno: '+',
+          m2t: '覆盖地区',
+          m2d: '日本、美国、欧洲、东南亚等',
+          m3num: '6',
+          m3anno: '+ 年',
+          m3t: '全球职业路径',
+          m3d: '日本 4 年 | 中国 2 年',
+        },
+        work: {
+          section: '职业经历',
+          bandai: '万代南梦宫集团',
+          bandaiSub: '全球 IP 运营与企业传播',
+          bandaiDesc:
+            '负责头部动画 IP 的海外版权协同——连接制作委员会、海外被授权方与全球同步营销节奏，维护品牌一致性。',
+          sika: '西卡（中国）有限公司',
+          sikaSub: '行政协同与企业大型活动统筹',
+          sikaDesc:
+            '亚太区高管行政支持与国际会议运营：为欧洲管理层提供专业行政协助，统筹大型会议，并推动团队间的内部沟通。',
+        },
+        side: {
+          section: '灵感项目',
+          introTitle: '导言',
+          coverTitle: '美学活动平台',
+          coverBody:
+            '这是一个诞生于2025年的探索生活美学的流动平台。在深厚的城市底蕴中，我们以手作为引，通过细腻的视觉叙事，感知存在于日常中的诗意。',
+          explore: '进入项目 →',
+          xhsLabel: '@鸢尾与三行诗',
+          xhsUrl:
+            'https://www.xiaohongshu.com/user/profile/6405f53a000000001001f1ad?xsec_token=YBQTNz0rt7eJcJNKb4sg9w5YS71k0tKGb8MV2x8e8nGbo=&xsec_source=app_share&xhsshare=CopyLink&shareRedId=OD46QjtJRj42NzUyOTgwNjg7OTlGST87&apptime=1776079160&share_id=4d178e37a7754e969b5e024025ccf226&exSource=',
+          opening:
+            'Iris & V. 诞生于对生活美学的深切热爱。我们相信美不应仅限于陈列，而应通过沉浸式的体验去重新发现日常中隐藏的诗意。我们以小红书（中国领先的生活方式社交平台）为主要社区运营阵地，每一场聚会都是一次灵感的碰撞，旨在女性群体中创造审美共鸣，让诗意在日常生活中真实呈现。',
+          interlude: '光落在纸面上——像翻过一页慢杂志。',
+          moodSection: '分区 A · 意境海报区',
+          docSection: '分区 B · 沉浸纪实区',
+          footnotesA: '8人规模 / 苏州南昆录 / 小红书社群招募',
+          footnotesB: '6人规模 / 1920s百年洋房 / 小红书社群招募',
+          projectA: {
+            title: '香云纱耳饰手作工坊',
+            detail:
+              '仲夏的南昆录花厅，绿荫漫进省级文保园林的窗棂。我们在古朴的昆曲场域内，以指尖触碰非遗香云纱的温润纹理。这不仅是一场耳饰的创作，更是一场在江南园林里的静谧驻足。',
+            posterLabels: ['主海报', '副海报'],
+            photoLabels: ['现场 I', '现场 II', '现场 III', '现场 IV'],
+          },
+          projectB: {
+            title: '1920s 复古夏日茶会',
+            detail:
+              '在西班牙风格的历史洋房内，阳光亲吻着玫瑰与蕾丝。我们重温 1920 年代的装饰艺术，亲手缝制一顶古董帽饰。百年回廊的窗边，是旧时光的驻足，也是灵感的跨时空碰撞。',
+            posterLabels: ['主海报', '副海报'],
+            photoLabels: ['现场 I', '现场 II', '现场 III'],
+          },
+          copyright: '版权声明：页面所示视觉素材版权归原作者所有，仅用于个人作品集展示。',
+        },
+        about: { section: '关于我', title: '生活与哲学', body: '我热爱旅游，喜欢探索世界的边界，在多元文化中感知生命的丰盈与人文的精彩。我珍视与家人共处的温馨时光，那是给予我启程新旅途的勇气与永恒支撑。我对生活始终保持着无尽的好奇，钢琴、舞蹈与健身如明灯交织，让我在不断探求中直面自我，获得身心深处的宁静。' },
+        contact: { section: '联系', email: '邮箱', linkedin: 'LinkedIn' },
+        detail: {
+          back: '返回',
+          disclaimer:
+            '注：页面展示的作品截图版权归原版权方所有，仅用于个人作品集展示。',
+          bandai: {
+            date1: '2019.04 - 2022.03',
+            title: '万代南梦宫集团',
+            companyArts: '万代南梦宫艺术有限公司',
+            companyFilmworks: '万代南梦宫影像制作有限公司',
+            period1Title: '2019.04 - 2022.03 万代南梦宫艺术有限公司',
+            period2Title: '2022.04 - 2023.08 万代南梦宫影像制作有限公司',
+            artsCaptions: [
+              '一拳超人',
+              '关于我转生变成史莱姆这档事',
+              'Love Live！ 虹咲学园偶像同好会',
+              '怪物事变',
+              '荒野的寿飞行队',
+              '魔物娘的医生',
+            ],
+            posters: [
+              { f: posterFiles[0], c: '一拳超人' },
+              { f: posterFiles[1], c: '关于我转生变成史莱姆这档事' },
+              { f: posterFiles[2], c: '机动战士高达 闪光的哈萨韦' },
+              { f: posterFiles[3], c: 'Love Live！ 虹咲学园偶像同好会' },
+              { f: posterFiles[4], c: 'IDOLiSH7 Third BEAT!' },
+              { f: posterFiles[5], c: '蓝色监狱' },
+            ],
+            ws1: [
+              '负责《一拳超人》《关于我转生变成史莱姆这档事》等 30 余部热门 IP 的海外版权运营，在 10 余个市场统筹素材交付与品牌授权。',
+              '协调制作委员会与海外被授权方，维护品牌一致性并支持全球同步发行的市场传播。',
+              '调往经营企划部；按集团规范完成内部控制相关运营。',
+            ],
+            date2: '2022.04 - 2023.08',
+            mergerNote: '*因集团内 Arts 与 Sunrise 合并而调动',
+            cap1: '探索动画制作中的XR技术应用',
+            cap2: '寻访Studio Dub福岛工作室（手绘与数字作画）',
+            ws2: [
+              '内部沟通与跨部门专题策划：主导内部专题内容制作，围绕XR技术应用与Studio Dub数字作画流程等主题，促进部门协同理解与集团文化融合。',
+              '企业活动策划与员工关怀：在合并期统筹并执行多项内部活动与员工关怀项目，提升团队凝聚力与士气。',
+              '行政与战略支持：在集团合并后，为高层管理者及经营企划部门提供全面的行政支持。',
+            ],
+          },
+          sika: {
+            title: '西卡（中国）有限公司', date: '2023.08 - 2025.10',
+            cards: [
+              { k: 'e', title: '高管行政协同', body: '为法、德籍亚太管理层提供专业行政支持，保障跨国日常运营顺畅。' },
+              { k: 'v', title: '国际会议运营', body: '端到端统筹执行 300+ 人规模的大型国际会议。' },
+              { k: 'h', title: '人力资源与企业传播', body: '促进公司内部高效沟通，支持高级管理层与各利益相关方的顺畅联系。' },
+              { k: 'p', title: '流程协调与部门协同', body: '负责企业项目的流程跟进及各职能部门间的日常工作协调。' },
+            ],
+            ws: [
+              '为亚太区领导层提供全方位行政支持，协助日常经营管理流程。',
+              '统筹大型国际会议并持续优化内部行政流程。',
+              '支持人力资源与管理层的内部沟通，促进企业文化融合。',
+            ],
+          },
+        },
+      },
+    };
+
+    const bandaiLogoSrc = './assets/' + encodeURIComponent('bandai namco group logo.png');
+    const sikaLogoSrc = './assets/Sika_Cambodia-Logo.webp';
+    const irisHeroSrc = './assets/' + encodeURIComponent('鸢尾花2.png');
+    const INTERVIEW_XR_SRC = './assets/' + encodeURIComponent('interview XR.png');
+    const INTERVIEW_DUB_SRC = './assets/' + encodeURIComponent('DUB studio.JPG');
+    function assetPath(filename) {
+      return './assets/' + encodeURIComponent(filename);
+    }
+
+    const SIDE_COVER_POSTERS = [assetPath('01.jpg'), assetPath('02.jpg')];
+    const SIDE_A_MAIN_POSTER = assetPath('苏州艺术活动1活动海报（1）.jpg');
+    const SIDE_A_SUB_POSTER = assetPath('苏州艺术活动1活动海报（2）.jpg');
+    const SIDE_A_PHOTOS = [
+      assetPath('苏州艺术活动1活动照片1.JPG'),
+      assetPath('苏州艺术活动1活动照片2.JPG'),
+      assetPath('苏州艺术活动1活动照片3.JPG'),
+      assetPath('苏州艺术活动1活动照片4.JPG'),
+    ];
+    const SIDE_B_HERO_POSTER = assetPath('苏州艺术活动2海报（1）.PNG');
+    const SIDE_B_SUB_POSTER = assetPath('苏州艺术活动2海报（2）.PNG');
+    const SIDE_B_PHOTOS = [
+      assetPath('苏州艺术活动2活动照片1.PNG'),
+      assetPath('苏州艺术活动2活动照片2.JPG'),
+      assetPath('苏州艺术活动2活动照片3.JPG'),
+    ];
+    const ABOUT_PHOTOS = [
+      assetPath('旅游照片1.JPG'),
+      assetPath('旅游照片2.JPG'),
+      assetPath('婚礼.JPG'),
+      assetPath('猫咪.JPG'),
+    ];
+    const RESUME_PDF_SRC = './assets/' + encodeURIComponent('Jane_Zhao_Resume JP+EN 2026.pdf');
+    const IRIS_FALLBACK_SRC = './assets/hero-iris-placeholder.svg';
+    const pub = (p) => './' + p.replace(/^\.\//, '');
+
+    function LangSwitch({ lang, setLang }) {
+      const codes = ['EN', 'JP', 'CN'];
+      return (
+        <div
+          className="flex shrink-0 items-center gap-0 text-[11px] font-medium uppercase tracking-widest text-[#6B7280] md:text-xs"
+          role="group"
+          aria-label="Language"
+        >
+          {codes.map((code, i) => (
+            <span key={code} className="flex items-center">
+              {i > 0 ? <span className="mx-2.5 inline-block h-3 w-px shrink-0 bg-gray-200/90" aria-hidden /> : null}
+              <button
+                type="button"
+                onClick={() => setLang(code)}
+                className={
+                  'cursor-pointer border-0 bg-transparent p-0 uppercase tracking-widest transition-colors ' +
+                  (lang === code
+                    ? 'font-semibold text-[#111827]'
+                    : 'font-normal text-[#9CA3AF] hover:text-[#4B5563]')
+                }
+              >
+                {code}
+              </button>
+            </span>
+          ))}
+        </div>
+      );
+    }
+
+    function SectionAccentRule() {
+      return (
+        <span className="mr-2.5 inline-block h-[0.85rem] w-[2px] shrink-0 self-center bg-[#1e3a8a]" aria-hidden />
+      );
+    }
+
+    function SectionLabel({ children }) {
+      return (
+        <p className="mb-6 flex min-h-[1.5rem] items-center text-sm font-medium uppercase tracking-[0.22em] text-[#4B5563]">
+          <SectionAccentRule />
+          <span>{children}</span>
+        </p>
+      );
+    }
+
+    function SummaryPara({ children }) {
+      return (
+        <div className="flex gap-3.5">
+          <span className="mt-[0.55rem] h-1 w-1 shrink-0 rounded-full bg-[#1e3a8a]" aria-hidden />
+          <p className="m-0 flex-1 text-sm font-medium leading-relaxed text-[#374151]">{children}</p>
+        </div>
+      );
+    }
+
+    function GlanceStat({ num, anno }) {
+      return (
+        <p className="flex flex-wrap items-baseline font-playfair leading-none text-[#111827]">
+          <span className="text-4xl font-normal tracking-tight">{num}</span>
+          <span className="ml-0.5 text-xs font-normal leading-none text-[#6B7280]">{anno}</span>
+        </p>
+      );
+    }
+
+    function IconEmail({ className = 'h-[15px] w-[15px]' }) {
+      return (
+        <svg className={className} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+          <path
+            d="M4 6h16v12H4V6z"
+            stroke="currentColor"
+            strokeWidth="1.25"
+            strokeLinejoin="round"
+          />
+          <path d="M4 7l8 6 8-6" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      );
+    }
+
+    function IconLinkedIn({ className = 'h-[14px] w-[14px]' }) {
+      return (
+        <svg className={className} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+          <rect x="2.5" y="2.5" width="19" height="19" rx="2" stroke="currentColor" strokeWidth="1.2" />
+          <path
+            d="M8 10v7M8 7.25v.01M12 10v7M12 13.5a2 2 0 0 1 4 0V17"
+            stroke="currentColor"
+            strokeWidth="1.2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      );
+    }
+
+    function IconBox({ children, compact }) {
+      return (
+        <div
+          className={
+            'flex items-center justify-center rounded-full border border-slate-200 bg-white text-[#111] ' +
+            (compact ? 'mb-3.5 h-8 w-8' : 'mb-5 h-10 w-10')
+          }
+        >
+          {children}
+        </div>
+      );
+    }
+
+    function HeroIrisSeal({ irisHeroSrc }) {
+      return (
+        <span className="pointer-events-none ml-2 inline-flex items-center">
+          <span className="hero-seal-stack">
+            <span className="hero-seal-shade--iris" aria-hidden>
+              <div className="hero-seal-bloom--iris" />
+              <svg viewBox="0 0 120 100" preserveAspectRatio="none">
+                <path
+                  d="M8 78 C 32 52, 48 68, 72 48 S 102 38, 112 52"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="0.9"
+                  strokeLinecap="round"
+                />
+                <path
+                  d="M14 88 C 38 72, 56 82, 84 64"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="0.55"
+                  strokeLinecap="round"
+                  opacity="0.8"
+                />
+              </svg>
+            </span>
+            <img
+              src={irisHeroSrc}
+              alt=""
+              className="hero-iris pointer-events-none absolute left-1/2 top-1/2 z-10 h-[76px] w-[76px] max-w-none object-contain"
+              style={{ mixBlendMode: 'multiply', transform: 'translate(calc(-50% + 1px), -50%) rotate(-6deg)' }}
+              onError={(e) => {
+                const el = e.currentTarget;
+                if (!el.dataset.fb) {
+                  el.dataset.fb = '1';
+                  el.src = IRIS_FALLBACK_SRC;
+                }
+              }}
+            />
+          </span>
+        </span>
+      );
+    }
+
+    function HeroTitleBlock({ lang, t, irisHeroSrc }) {
+      if (lang === 'JP') {
+        return (
+          <div className="relative min-h-[4.5rem] max-w-xl">
+            <h1 className="m-0 font-playfair text-5xl font-light leading-[1.12] tracking-tight text-[#111827]">
+              <span className="inline-flex items-center whitespace-nowrap align-baseline">
+                <ruby>
+                  趙<rt>チョウ</rt>
+                </ruby>
+                <ruby>
+                  臻<rt>シン</rt>
+                </ruby>
+                です。
+                <HeroIrisSeal irisHeroSrc={irisHeroSrc} />
+              </span>
+            </h1>
+          </div>
+        );
+      }
+      const h = t.hero;
+      return (
+        <div className="relative min-h-[3.5rem] max-w-xl">
+          <h1 className="m-0 font-playfair text-5xl font-light leading-[1.12] tracking-tight text-[#111827]">
+            {h.line1Prefix}
+            <span className="inline-flex items-center whitespace-nowrap align-baseline">
+              {h.line1Name}
+              {h.line1Suffix}
+              <HeroIrisSeal irisHeroSrc={irisHeroSrc} />
+            </span>
+          </h1>
+        </div>
+      );
+    }
+
+    function DetailBandai({ t, lang, setLang, onBack }) {
+      const b = t.detail.bandai;
+      const d = t.detail;
+      return (
+        <div className="min-h-screen">
+          <header className="sticky top-0 z-40 border-b border-gray-100 bg-[#FDFCF8]/95 backdrop-blur-sm">
+            <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-6 py-3 md:px-8">
+              <button
+                type="button"
+                onClick={onBack}
+                className="shrink-0 border-0 bg-transparent p-0 text-[11px] font-medium uppercase tracking-[0.14em] text-[#4B5563] transition-colors hover:text-[#111827]"
+              >
+                ← {d.back}
+              </button>
+              <div className="shrink-0">
+                <LangSwitch lang={lang} setLang={setLang} />
+              </div>
+            </div>
+          </header>
+          <main className="mx-auto max-w-5xl px-6 pb-24 pt-8 md:px-8">
+            <section>
+              <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#111827]">{b.date1}</p>
+              <h2 className="mt-2 font-playfair text-xl font-bold leading-snug text-[#111827] md:text-2xl">{b.companyArts}</h2>
+              <div className="mt-5 grid grid-cols-3 gap-2.5 sm:gap-3 md:gap-4">
+                {ARTS_POSTER_BASES.map((base, i) => (
+                  <figure key={base} className="m-0">
+                    <div className="aspect-video overflow-hidden rounded-sm bg-slate-100/90">
+                      <img
+                        src={artsPosterSrc(base)}
+                        alt=""
+                        className="h-full w-full object-cover object-top"
+                        onError={(e) => {
+                          const el = e.currentTarget;
+                          if (!el.dataset.fb) {
+                            el.dataset.fb = '1';
+                            el.src = pub('assets/bandai/posters/' + posterFiles[i]);
+                          }
+                        }}
+                      />
+                    </div>
+                    <figcaption className="mt-2 text-center font-playfair text-xs font-semibold leading-snug text-[#374151] md:text-sm">
+                      {b.artsCaptions[i]}
+                    </figcaption>
+                  </figure>
+                ))}
+              </div>
+              <div className="mt-5 max-w-2xl">
+                <div className="space-y-4">
+                  {b.ws1.map((x) => (
+                    <SummaryPara key={x}>{x}</SummaryPara>
+                  ))}
+                </div>
+              </div>
+            </section>
+
+            <section className="mt-10 pt-8 md:mt-12 md:pt-10">
+              <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#111827]">{b.date2}</p>
+              <h2 className="mt-2 font-playfair text-xl font-bold leading-snug text-[#111827] md:text-2xl">{b.companyFilmworks}</h2>
+              <p className="mt-2 block max-w-2xl text-xs leading-relaxed text-[#6B7280]">{b.mergerNote}</p>
+              <div className="mt-8 w-full min-w-0">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-5">
+                  <figure className="m-0 flex flex-col">
+                    <div className="aspect-video w-full overflow-hidden rounded-sm bg-slate-100/90">
+                      <img
+                        src={INTERVIEW_XR_SRC}
+                        alt=""
+                        className="h-full w-full object-cover object-top"
+                        onError={(e) => {
+                          const el = e.currentTarget;
+                          if (!el.dataset.fb) {
+                            el.dataset.fb = '1';
+                            el.src = pub('assets/bandai/interview-1.svg');
+                          }
+                        }}
+                      />
+                    </div>
+                    <figcaption className="mt-3 font-playfair text-sm font-bold text-[#111827]">{b.cap1}</figcaption>
+                  </figure>
+                  <figure className="m-0 flex flex-col">
+                    <div className="aspect-video w-full overflow-hidden rounded-sm bg-slate-100/90">
+                      <img
+                        src={INTERVIEW_DUB_SRC}
+                        alt=""
+                        className="h-full w-full object-cover object-top"
+                        onError={(e) => {
+                          const el = e.currentTarget;
+                          if (!el.dataset.fb) {
+                            el.dataset.fb = '1';
+                            el.src = pub('assets/bandai/interview-2.svg');
+                          }
+                        }}
+                      />
+                    </div>
+                    <figcaption className="mt-3 font-playfair text-sm font-bold text-[#111827]">{b.cap2}</figcaption>
+                  </figure>
+                </div>
+              </div>
+              <div className="mt-6 max-w-2xl">
+                <div className="space-y-4">
+                  {b.ws2.map((x) => (
+                    <SummaryPara key={x}>{x}</SummaryPara>
+                  ))}
+                </div>
+              </div>
+            </section>
+
+            <p className="ml-auto mt-16 w-fit text-right text-[8px] leading-none text-gray-400 whitespace-nowrap md:mt-20 md:text-[9px]">{d.disclaimer}</p>
+          </main>
+        </div>
+      );
+    }
+
+    function DetailSika({ t, lang, setLang, onBack }) {
+      const s = t.detail.sika;
+      const d = t.detail;
+      const icons = [
+        <svg key="1" className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>,
+        <svg key="2" className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" /></svg>,
+        <svg key="3" className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>,
+        <svg key="4" className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="12" r="3" /><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" /></svg>,
+      ];
+      return (
+        <div className="min-h-screen">
+          <header className="sticky top-0 z-40 border-b border-gray-100 bg-[#FDFCF8]/95 backdrop-blur-sm">
+            <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-6 py-3 md:px-8">
+              <button
+                type="button"
+                onClick={onBack}
+                className="shrink-0 border-0 bg-transparent p-0 text-[11px] font-medium uppercase tracking-[0.14em] text-[#4B5563] transition-colors hover:text-[#111827]"
+              >
+                ← {d.back}
+              </button>
+              <div className="shrink-0">
+                <LangSwitch lang={lang} setLang={setLang} />
+              </div>
+            </div>
+          </header>
+          <main className="mx-auto max-w-5xl px-6 pb-24 pt-8 md:px-8">
+            <section>
+              <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#111827]">{s.date}</p>
+              <h2 className="mt-2 font-playfair text-xl font-bold leading-snug text-[#111827] md:text-2xl">{s.title}</h2>
+              <div className="mt-8 grid w-full grid-cols-1 gap-5 md:grid-cols-2 md:gap-6">
+                {s.cards.map((c, i) => (
+                  <div key={c.k} className="rounded-xl border border-slate-200/90 bg-white/95 p-6 shadow-sm">
+                    <IconBox compact>{icons[i]}</IconBox>
+                    <h3 className="font-playfair text-base font-semibold text-[#111827]">{c.title}</h3>
+                    <p className="mt-2.5 text-sm leading-relaxed tracking-tight text-[#4B5563]">{c.body}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-8 max-w-2xl">
+                <div className="space-y-4">
+                  {s.ws.map((x) => (
+                    <SummaryPara key={x}>{x}</SummaryPara>
+                  ))}
+                </div>
+              </div>
+            </section>
+            <p className="ml-auto mt-16 w-fit text-right text-[8px] leading-none text-gray-400 whitespace-nowrap md:mt-20 md:text-[9px]">{d.disclaimer}</p>
+          </main>
+        </div>
+      );
+    }
+
+    function IconXHS({ className = 'h-5 w-5 shrink-0' }) {
+      return (
+        <svg className={className} viewBox="0 0 24 24" aria-hidden>
+          <rect width="24" height="24" rx="5" fill="#ff2442" />
+          <rect x="6.5" y="7" width="11" height="3.25" rx="0.75" fill="#fff" fillOpacity=".95" />
+          <rect x="6.5" y="12.25" width="11" height="3.25" rx="0.75" fill="#fff" fillOpacity=".82" />
+        </svg>
+      );
+    }
+
+    function EditorialSectionTitle({ children }) {
+      return (
+        <h2 className="mb-0 flex items-start gap-3 font-playfair text-xl font-semibold leading-snug tracking-tight text-[#111827] md:text-2xl">
+          <span className="mt-1.5 inline-block h-9 w-[2px] shrink-0 bg-[#1e3a8a]" aria-hidden />
+          <span className="min-w-0 flex-1">{children}</span>
+        </h2>
+      );
+    }
+
+    function sideImgOnError(e) {
+      const el = e.currentTarget;
+      if (!el.dataset.fb) {
+        el.dataset.fb = '1';
+        el.src = pub('assets/hero-iris-placeholder.svg');
+      }
+    }
+
+    function SidePosterPair({ posters, posterLabels, footnote }) {
+      return (
+        <div className="flex h-full w-full justify-end">
+          <div className="inline-flex max-w-full min-w-0 flex-col items-stretch">
+            <div className="side-poster-row">
+              {posters.map((src, i) => (
+                <figure key={src} className="m-0 flex h-full min-w-0 shrink-0 items-center justify-center">
+                  <img src={src} alt={posterLabels[i]} onError={sideImgOnError} />
+                </figure>
+              ))}
+            </div>
+            <p className="mt-2 w-full min-w-0 self-stretch pl-0 text-left text-[9px] leading-tight text-[#9CA3AF] md:text-[10px]">
+              {footnote}
+            </p>
+          </div>
+        </div>
+      );
+    }
+
+    function SidePhotoWallA({ srcs, labels }) {
+      return (
+        <div className="mt-4 grid grid-cols-2 gap-3 md:h-[24rem] md:grid-cols-[0.92fr_1.16fr_0.92fr] md:grid-rows-2 md:gap-3">
+          <figure className="m-0 md:row-span-2">
+            <div className="aspect-[3/4] h-full w-full overflow-hidden md:aspect-auto">
+              <img src={srcs[0]} alt={labels[0]} className="h-full w-full object-contain" onError={sideImgOnError} />
+            </div>
+          </figure>
+          <figure className="m-0 md:col-start-2 md:row-start-1">
+            <div className="aspect-[16/9] h-full w-full overflow-hidden md:aspect-auto">
+              <img src={srcs[1]} alt={labels[1]} className="h-full w-full object-contain" onError={sideImgOnError} />
+            </div>
+          </figure>
+          <figure className="m-0 md:col-start-2 md:row-start-2">
+            <div className="aspect-[16/9] h-full w-full overflow-hidden md:aspect-auto">
+              <img src={srcs[3]} alt={labels[3]} className="h-full w-full object-contain" onError={sideImgOnError} />
+            </div>
+          </figure>
+          <figure className="m-0 md:col-start-3 md:row-span-2">
+            <div className="aspect-[3/4] h-full w-full overflow-hidden md:aspect-auto">
+              <img src={srcs[2]} alt={labels[2]} className="h-full w-full object-contain" onError={sideImgOnError} />
+            </div>
+          </figure>
+        </div>
+      );
+    }
+
+    function SidePhotoWallB({ srcs, labels }) {
+      return (
+        <div className="mt-4 grid grid-cols-1 gap-3 md:h-[24rem] md:grid-cols-3 md:gap-3">
+          {srcs.map((src, i) => (
+            <figure key={src} className="m-0 h-full">
+              <div className="h-full w-full overflow-hidden">
+                <img src={src} alt={labels[i]} className="h-full w-full object-contain" onError={sideImgOnError} />
+              </div>
+            </figure>
+          ))}
+        </div>
+      );
+    }
+
+    function SideActivityHeaderRow({ detail, posters, posterLabels, footnote }) {
+      return (
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_32rem] lg:items-start lg:gap-14">
+          <div className="flex h-full min-w-0 items-start pr-2 lg:min-h-[336px] lg:pr-4">
+            <p className="m-0 max-w-[24rem] text-base leading-[2.15] text-[#4B5563]">
+              {detail}
+            </p>
+          </div>
+          <div className="w-full min-w-0 justify-self-end">
+            <SidePosterPair posters={posters} posterLabels={posterLabels} footnote={footnote} />
+          </div>
+        </div>
+      );
+    }
+
+    function DetailSide({ t, lang, setLang, onBack }) {
+      const s = t.side;
+      const d = t.detail;
+      const a = s.projectA;
+      const b = s.projectB;
+      const titleClass = 'font-playfair text-xl font-semibold leading-snug text-[#111827] md:text-2xl';
+
+      return (
+        <div className="min-h-screen bg-[#FDFCF8]">
+          <header className="sticky top-0 z-40 border-b border-gray-100 bg-[#FDFCF8]/95 backdrop-blur-sm">
+            <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-6 py-3 md:px-8">
+              <button
+                type="button"
+                onClick={onBack}
+                className="shrink-0 border-0 bg-transparent p-0 text-[11px] font-medium uppercase tracking-[0.14em] text-[#4B5563] transition-colors hover:text-[#111827]"
+              >
+                ← {d.back}
+              </button>
+              <div className="shrink-0">
+                <LangSwitch lang={lang} setLang={setLang} />
+              </div>
+            </div>
+          </header>
+
+          <main className="mx-auto max-w-5xl px-6 pb-24 pt-10 md:px-8">
+            <section>
+              <h2 className={titleClass}>{s.introTitle}</h2>
+              <div className="editorial-wash mt-5 max-w-5xl px-1 py-1">
+                <p className="m-0 text-sm leading-relaxed text-[#4B5563] md:text-[0.92rem]">{s.opening}</p>
+              </div>
+            </section>
+
+            <section className="mt-14 md:mt-16">
+              <h2 className={titleClass + ' inline-block bg-[#E6E6FA]/35 px-2 py-1'}>{a.title}</h2>
+              <div className="mt-8">
+                <SideActivityHeaderRow
+                  detail={a.detail}
+                  posters={[SIDE_A_MAIN_POSTER, SIDE_A_SUB_POSTER]}
+                  posterLabels={a.posterLabels}
+                  footnote={s.footnotesA}
+                />
+                <SidePhotoWallA srcs={SIDE_A_PHOTOS} labels={a.photoLabels} />
+              </div>
+            </section>
+
+            <div className="py-12" aria-hidden />
+
+            <section>
+              <h2 className={titleClass + ' inline-block bg-[#E6E6FA]/35 px-2 py-1'}>{b.title}</h2>
+              <div className="mt-8">
+                <SideActivityHeaderRow
+                  detail={b.detail}
+                  posters={[SIDE_B_HERO_POSTER, SIDE_B_SUB_POSTER]}
+                  posterLabels={b.posterLabels}
+                  footnote={s.footnotesB}
+                />
+                <SidePhotoWallB srcs={SIDE_B_PHOTOS} labels={b.photoLabels} />
+              </div>
+            </section>
+
+            <p className="ml-auto mt-20 w-fit text-right text-[8px] leading-none text-gray-400 whitespace-nowrap md:mt-24 md:text-[9px]">{s.copyright}</p>
+          </main>
+        </div>
+      );
+    }
+
+    function App() {
+      const [lang, setLang] = useState('EN');
+      const [view, setView] = useState('home');
+      const t = T[lang];
+      const SIDE_PATH = '/side-projects';
+
+      const go = useCallback((id) => {
+        document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, []);
+
+      const onBack = useCallback(() => {
+        try {
+          window.history.pushState({}, '', '/');
+        } catch (_) {}
+        setView('home');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, []);
+
+      const openSidePage = useCallback(() => {
+        try {
+          if (window.location.pathname !== SIDE_PATH) {
+            window.history.pushState({}, '', SIDE_PATH);
+          }
+        } catch (_) {}
+        setView('side');
+        window.scrollTo(0, 0);
+      }, []);
+
+      useEffect(() => {
+        if (view !== 'home') {
+          window.scrollTo(0, 0);
+        }
+      }, [view]);
+
+      useEffect(() => {
+        const syncViewFromPath = () => {
+          if (window.location.pathname === SIDE_PATH) {
+            setView('side');
+          } else {
+            setView('home');
+          }
+        };
+        window.scrollTo(0, 0);
+        syncViewFromPath();
+        window.addEventListener('popstate', syncViewFromPath);
+        return () => window.removeEventListener('popstate', syncViewFromPath);
+      }, []);
+
+      if (view === 'bandai') return <DetailBandai t={t} lang={lang} setLang={setLang} onBack={onBack} />;
+      if (view === 'sika') return <DetailSika t={t} lang={lang} setLang={setLang} onBack={onBack} />;
+      if (view === 'side') return <DetailSide t={t} lang={lang} setLang={setLang} onBack={onBack} />;
+
+      return (
+        <div className="relative min-h-screen">
+          <header className="fixed left-0 top-0 z-50 w-full border-b border-gray-100 bg-[#FDFCF8]/95 backdrop-blur-sm">
+            <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-6 py-2.5 md:px-8 md:py-3">
+              <nav className="flex min-w-0 flex-1 flex-wrap items-center gap-x-4 gap-y-1.5 text-[11px] font-medium uppercase tracking-[0.14em] text-[#4B5563] md:gap-x-5 md:text-xs md:tracking-[0.16em]">
+                <button
+                  type="button"
+                  onClick={() => go('glance')}
+                  className="whitespace-nowrap border-0 bg-transparent p-0 hover:text-[#111827]"
+                >
+                  {t.nav.glance}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => go('work')}
+                  className="whitespace-nowrap border-0 bg-transparent p-0 hover:text-[#111827]"
+                >
+                  {t.nav.work}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => go('side')}
+                  className="whitespace-nowrap border-0 bg-transparent p-0 hover:text-[#111827]"
+                >
+                  {t.nav.side}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => go('about')}
+                  className="whitespace-nowrap border-0 bg-transparent p-0 hover:text-[#111827]"
+                >
+                  {t.nav.about}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => go('contact')}
+                  className="whitespace-nowrap border-0 bg-transparent p-0 hover:text-[#111827]"
+                >
+                  {t.nav.contact}
+                </button>
+              </nav>
+              <div className="shrink-0">
+                <LangSwitch lang={lang} setLang={setLang} />
+              </div>
+            </div>
+          </header>
+
+          <main className="mx-auto max-w-5xl px-6 md:px-8">
+            <section id="hero" className="relative overflow-visible pb-10 pt-24 md:pt-28">
+              <div className="relative z-10 min-h-[12rem] min-w-0 max-w-2xl">
+                <div className="relative inline-block w-full max-w-xl">
+                  <HeroTitleBlock lang={lang} t={t} irisHeroSrc={irisHeroSrc} />
+                </div>
+                <p className="mt-6 min-h-[3rem] text-base font-normal leading-relaxed text-[#4B5563] md:min-h-[3.25rem] md:text-lg">
+                  {t.hero.line2}
+                </p>
+                <div className="mt-9 flex min-h-[2.75rem] flex-wrap items-center gap-3 md:gap-3.5">
+                  <a
+                    href={RESUME_PDF_SRC}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center rounded-md border-2 border-gray-300 bg-transparent px-6 py-2.5 text-xs font-semibold tracking-wide text-[#111827] no-underline shadow-sm transition-colors duration-200 hover:border-gray-400 hover:bg-white/80 hover:text-[#111827] focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-200/80"
+                  >
+                    {t.hero.cta}
+                  </a>
+                </div>
+              </div>
+            </section>
+
+            <div className="relative">
+              <section id="glance" className="relative z-10 pb-11 pt-12 text-left">
+                <SectionLabel>{t.glance.section}</SectionLabel>
+                <div className="grid w-full max-w-4xl grid-cols-1 justify-items-start gap-x-5 gap-y-10 sm:grid-cols-3 sm:gap-x-6">
+                  <div className="max-w-[14rem] sm:max-w-none">
+                    <GlanceStat num={t.glance.m1num} anno={t.glance.m1anno} />
+                    <p className="mt-3 text-base font-medium leading-snug text-[#111827]">{t.glance.m1t}</p>
+                    <p className="mt-2 text-sm leading-relaxed text-[#4B5563]">{t.glance.m1d}</p>
+                  </div>
+                  <div className="max-w-[14rem] sm:max-w-none">
+                    <GlanceStat num={t.glance.m2num} anno={t.glance.m2anno} />
+                    <p className="mt-3 text-base font-medium leading-snug text-[#111827]">{t.glance.m2t}</p>
+                    <p className="mt-2 text-sm leading-relaxed text-[#4B5563]">{t.glance.m2d}</p>
+                  </div>
+                  <div className="max-w-[14rem] sm:max-w-none">
+                    <GlanceStat num={t.glance.m3num} anno={t.glance.m3anno} />
+                    <p className="mt-3 text-base font-medium leading-snug text-[#111827]">{t.glance.m3t}</p>
+                    <p className="mt-2 text-sm leading-relaxed text-[#4B5563]">{t.glance.m3d}</p>
+                  </div>
+                </div>
+              </section>
+
+              <section id="work" className="relative z-10 pb-12 pt-2">
+                <SectionLabel>{t.work.section}</SectionLabel>
+                <div className="grid grid-cols-1 gap-10 md:grid-cols-2 md:gap-10 lg:gap-14">
+                  <div
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => setView('bandai')}
+                    onKeyDown={(e) => e.key === 'Enter' && setView('bandai')}
+                    className="group flex cursor-pointer flex-col items-start text-left outline-none"
+                  >
+                    <div className="flex h-12 w-full items-center justify-start">
+                      <img
+                        src={bandaiLogoSrc}
+                        alt=""
+                        className="h-10 max-h-10 w-auto max-w-[200px] origin-left scale-[0.85] object-contain opacity-90 transition-opacity duration-300 group-hover:opacity-100"
+                      />
+                    </div>
+                    <h3 className="mt-1.5 font-playfair text-xl font-normal leading-tight text-[#111827] md:text-2xl">
+                      {t.work.bandai}
+                    </h3>
+                    <p className="mt-0.5 max-w-md text-[10px] font-medium uppercase leading-snug tracking-[0.1em] text-[#9CA3AF] md:whitespace-nowrap">
+                      {t.work.bandaiSub}
+                    </p>
+                  </div>
+                  <div
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => setView('sika')}
+                    onKeyDown={(e) => e.key === 'Enter' && setView('sika')}
+                    className="group flex cursor-pointer flex-col items-start text-left outline-none"
+                  >
+                    <div className="flex h-12 w-full items-center justify-start overflow-visible">
+                      <img
+                        src={sikaLogoSrc}
+                        alt=""
+                        className="h-9 max-h-9 w-auto max-w-[220px] origin-left scale-[1.22] object-contain opacity-90 transition-opacity duration-300 group-hover:opacity-100"
+                      />
+                    </div>
+                    <h3 className="mt-1.5 font-playfair text-xl font-normal leading-tight text-[#111827] md:text-2xl">
+                      {t.work.sika}
+                    </h3>
+                    <p className="mt-0.5 max-w-md text-[10px] font-medium uppercase leading-snug tracking-[0.1em] text-[#9CA3AF] md:whitespace-nowrap">
+                      {t.work.sikaSub}
+                    </p>
+                  </div>
+                </div>
+              </section>
+            </div>
+
+            <section id="side" className="pb-12 pt-12 text-left">
+              <div className="ml-0 mr-auto w-full max-w-6xl text-left">
+                <div className="mb-7 flex items-center text-sm font-medium uppercase tracking-[0.22em] text-[#4B5563]">
+                  <SectionAccentRule />
+                  <span>SIDE PROJECTS</span>
+                </div>
+
+                <div
+                  role="button"
+                  tabIndex={0}
+                  onClick={openSidePage}
+                  onKeyDown={(e) => (e.key === 'Enter' ? openSidePage() : null)}
+                  className="flex cursor-pointer flex-col items-start gap-10 pt-2 md:flex-row md:items-start md:justify-between md:gap-12 lg:gap-14"
+                >
+                  <div className="w-full min-w-0 md:w-[52%] md:max-w-[55%] md:flex-none">
+                    <h4 className="mb-3 font-playfair text-lg font-semibold leading-snug text-[#111827]">{t.side.coverTitle}</h4>
+                    <p className="m-0 text-sm leading-relaxed text-[#4B5563] md:text-[0.9375rem] md:leading-relaxed">{t.side.coverBody}</p>
+                    <div className="mt-5 flex flex-wrap items-center gap-3">
+                      <a
+                        href={t.side.xhsUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex max-w-full items-center gap-2.5 border-0 bg-transparent p-0 text-sm font-medium text-[#111827] no-underline"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <IconXHS className="h-5 w-5" />
+                        <span className="truncate">{t.side.xhsLabel}</span>
+                      </a>
+                      <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#9CA3AF] md:text-[11px]">
+                        {t.side.explore}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="relative ml-0 h-[15.5rem] w-full shrink-0 md:ml-0 md:h-[17.5rem] md:w-[min(48%,20rem)] md:flex-1 lg:h-[19rem] lg:max-w-[22rem]">
+                    <figure className="absolute bottom-0 right-0 z-0 m-0 w-[72%] max-w-[14.5rem] overflow-hidden md:max-w-[15.5rem]">
+                      <div className="flex aspect-[3/4] w-full items-center justify-center p-1.5 md:p-2">
+                        <img
+                          src={SIDE_COVER_POSTERS[0]}
+                          alt="Side cover 1"
+                          className="max-h-full max-w-full object-contain"
+                          onError={sideImgOnError}
+                        />
+                      </div>
+                    </figure>
+                    <figure className="absolute left-0 top-2 z-10 m-0 w-[54%] max-w-[11rem] overflow-hidden md:top-4 md:max-w-[12rem]">
+                      <div className="flex aspect-[3/4] w-full items-center justify-center p-1.5 md:p-2">
+                        <img
+                          src={SIDE_COVER_POSTERS[1]}
+                          alt="Side cover 2"
+                          className="max-h-full max-w-full object-contain"
+                          onError={sideImgOnError}
+                        />
+                      </div>
+                    </figure>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section id="about" className="pb-11 pt-12 text-left">
+              <div className="mb-6 flex items-center text-sm font-medium uppercase tracking-[0.22em] text-[#4B5563]">
+                <SectionAccentRule />
+                <span>{t.about.section}</span>
+              </div>
+              <div>
+                <div className="grid max-w-4xl grid-cols-1 items-stretch gap-8 md:grid-cols-12 md:gap-10">
+                  <div className="md:col-span-5">
+                    <div className="grid h-full grid-cols-2 gap-1.5 md:h-[24rem] md:gap-1.5">
+                      {ABOUT_PHOTOS.map((src, i) => (
+                        <div key={src} className="aspect-[4/3] overflow-hidden rounded-lg">
+                          <img
+                            src={src}
+                            alt={'About photo ' + (i + 1)}
+                            className="h-full w-full object-cover"
+                            onError={sideImgOnError}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="md:col-span-7 md:flex md:h-[24rem] md:items-start md:pt-6">
+                    <p className="max-w-xl text-sm leading-[2] tracking-[0.01em] text-[#4B5563]">
+                      {t.about.body}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section id="contact" className="pb-16 pt-12 text-left">
+              <SectionLabel>{t.contact.section}</SectionLabel>
+              <div className="flex flex-col items-start gap-5 sm:flex-row sm:gap-10">
+                <a
+                  href="mailto:chouwusinn@gmail.com"
+                  className="group inline-flex items-center gap-2.5 text-[#4B5563] no-underline transition-colors hover:text-[#111827]"
+                >
+                  <span className="text-[#9CA3AF] transition-colors group-hover:text-[#111827]">
+                    <IconEmail />
+                  </span>
+                  <span className="text-xs font-medium uppercase tracking-[0.16em]">{t.contact.email}</span>
+                </a>
+                <a
+                  href="https://www.linkedin.com/in/%E8%87%BB-%E8%B5%B5-94071526b/"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="group inline-flex items-center gap-2.5 text-[#4B5563] no-underline transition-colors hover:text-[#111827]"
+                >
+                  <span className="text-[#9CA3AF] transition-colors group-hover:text-[#111827]">
+                    <IconLinkedIn />
+                  </span>
+                  <span className="text-xs font-medium uppercase tracking-[0.16em]">{t.contact.linkedin}</span>
+                </a>
+              </div>
+            </section>
+            <p className="ml-auto mt-8 w-fit text-right text-[8px] leading-none text-gray-400 whitespace-nowrap md:text-[9px]">{t.detail.disclaimer}</p>
+          </main>
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
